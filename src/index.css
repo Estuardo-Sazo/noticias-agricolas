@@ -1,22 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Componentes reutilizables */
-@layer components {
-	.btn-primary {
-		@apply inline-flex items-center justify-center px-5 py-2 rounded-md text-white bg-primary-600 hover:bg-primary-700 shadow;
-	}
+@import "tailwindcss";
 
-	.card {
-		@apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
-	}
-
-	.hero {
-		@apply bg-cover bg-center text-center py-28 text-gray-900;
-	}
-
-	.container-md {
-		@apply max-w-6xl mx-auto px-6;
-	}
+/* Extiende el tema desde CSS */
+@theme {
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-200: #a7f3d0;
+  --color-primary-300: #6ee7b7;
+  --color-primary-400: #34d399;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+}
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-900);
+  }
 }

@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
+import typography from '@tailwindcss/typography'
+
 export default {
   content: [
     './index.html',
-    './src/**/*.{js,ts,jsx,tsx,html}',
+    './src/**/*.{ts,tsx,js,jsx,css}',
   ],
   theme: {
     extend: {
       colors: {
-        // Paleta tipo 'emerald' — ajusta estos hex a los del PDF si nos compartes el código exacto de color de marca
         primary: {
           50: '#ecfdf5',
           100: '#d1fae5',
@@ -23,5 +24,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [typography],
 }
