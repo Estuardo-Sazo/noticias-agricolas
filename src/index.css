@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
-@import "tailwindcss";
 
 /* Extiende el tema desde CSS */
 @theme {
+      --font-poppins: Poppins, sans-serif;
+      
   --color-primary-50: #ecfdf5;
   --color-primary-100: #d1fae5;
   --color-primary-200: #a7f3d0;
