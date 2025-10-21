@@ -38,6 +38,7 @@ export default function MobileTopbar({ onLogout }: Props) {
         <nav className="fixed top-14 inset-x-0 z-50 px-3">
           <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
             <NavLink to="/" className="block px-4 py-3 hover:bg-gray-50">Inicio</NavLink>
+            <NavLink to="/weather" className="block px-4 py-3 hover:bg-gray-50">Clima</NavLink>
             <NavLink to="/profile" className="block px-4 py-3 hover:bg-gray-50">Mi Perfil</NavLink>
             <NavLink to="/crops" className="block px-4 py-3 hover:bg-gray-50">Mis Cultivos</NavLink>
             <NavLink to="/settings" className="block px-4 py-3 hover:bg-gray-50">Configuración</NavLink>

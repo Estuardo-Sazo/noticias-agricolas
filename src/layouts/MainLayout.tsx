@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
-import SidebarNav from '../components/nav/SidebarNav'
 import MobileTopbar from '../components/nav/MobileTopbar'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import TopNav from '../components/nav/TopNav'
 
 type Props = { children: ReactNode }
 
@@ -17,12 +17,12 @@ export default function MainLayout({ children }: Props) {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			{/* Mobile topbar */}
+			{/* Top navigations */}
 			<MobileTopbar onLogout={handleLogout} />
-			<div className="grid grid-cols-1 md:grid-cols-[260px_1fr]">
-				<SidebarNav onLogout={handleLogout} />
-				<main className="p-6 md:p-10">{children}</main>
-			</div>
+			<TopNav onLogout={handleLogout} />
+
+			{/* Content area (full width in desktop) */}
+			<main className="p-6 md:p-10">{children}</main>
 		</div>
 	)
 }
