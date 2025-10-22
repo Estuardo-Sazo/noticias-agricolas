@@ -4,6 +4,11 @@ type Props = {
   tempC: number
   summary: string
   details: Detail[]
+  /**
+   * Variante compacta enfocada en lo agrícola: muestra solo Humedad, Viento y UV
+   * y mejora la legibilidad de los valores.
+   */
+  variant?: 'default' | 'compact'
 }
 
 function Icon({ name }: { name: Detail['icon'] }) {
@@ -41,7 +46,11 @@ function Icon({ name }: { name: Detail['icon'] }) {
   }
 }
 
-export default function CurrentWeatherCard({ tempC, summary, details }: Props) {
+export default function CurrentWeatherCard({ tempC, summary, details, variant = 'default' }: Props) {
+  const visibleDetails =
+    variant === 'compact'
+      ? details.filter((d) => ['humidity', 'wind', 'uv'].includes(String(d.icon)))
+      : details
   return (
     <section className="rounded-2xl border border-gray-200 bg-gradient-to-r from-emerald-50 to-white p-5 shadow-sm">
       <div className="flex items-center justify-between gap-6">
@@ -54,15 +63,31 @@ export default function CurrentWeatherCard({ tempC, summary, details }: Props) {
         </div>
         <div className="text-3xl md:text-4xl font-extrabold text-gray-900">{Math.round(tempC)}°C</div>
       </div>
-      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {details.map((d, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
-            <Icon name={d.icon} />
-            <span className="text-gray-500">{d.label}:</span>
-            <span className="font-medium text-gray-800">{d.value}</span>
-          </div>
-        ))}
-      </div>
+      {variant === 'compact' ? (
+        <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-3 gap-3">
+          {visibleDetails.map((d, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 grid place-items-center border border-emerald-100">
+                <Icon name={d.icon} />
+              </div>
+              <div className="leading-tight">
+                <div className="text-sm font-semibold text-gray-900">{d.value}</div>
+                <div className="text-[11px] text-gray-500">{d.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {visibleDetails.map((d, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+              <Icon name={d.icon} />
+              <span className="text-gray-500">{d.label}:</span>
+              <span className="font-medium text-gray-800">{d.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

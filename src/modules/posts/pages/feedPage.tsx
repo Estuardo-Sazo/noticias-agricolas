@@ -135,11 +135,11 @@ export default function FeedPage() {
               tempC={27}
               summary="Soleado con nubes dispersas"
               details={[
-                { label: 'Sensación', value: '26°C', icon: 'feels' },
                 { label: 'Humedad', value: '65%', icon: 'humidity' },
                 { label: 'Viento', value: '12 km/h', icon: 'wind' },
                 { label: 'Índice UV', value: 'Bajo', icon: 'uv' },
               ]}
+              variant="compact"
             />
 
             {/* Alertas */}
