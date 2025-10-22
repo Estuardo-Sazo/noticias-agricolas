@@ -22,6 +22,7 @@ export default function TopNav({ onLogout }: Props) {
           <NavLink to="/" end className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Inicio</NavLink>
           <NavLink to="/weather" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Clima</NavLink>
           <NavLink to="/profile" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Mi Perfil</NavLink>
+          <NavLink to="/crops" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Mis Cultivos</NavLink>
           <NavLink to="/posts" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Mis Publicaciones</NavLink>
           <NavLink to="/settings" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Configuración</NavLink>
           <NavLink to="/help" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Ayuda</NavLink>

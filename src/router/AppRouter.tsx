@@ -7,6 +7,8 @@ import MyPostsPage from '../modules/posts/pages/myPost'
 import PostDetail from '../modules/posts/pages/postDetail'
 import WeatherPage from '../modules/weathers/pages/weatherPage'
 import MainLayout from '../layouts/MainLayout'
+import MyCropsPage from '../modules/crops/pages/myCrops'
+import CropUpsertPage from '../modules/crops/pages/cropUpsert'
 
 export default function AppRouter() {
   function ProtectedLayout() {
@@ -25,6 +27,9 @@ export default function AppRouter() {
         <Route path="/" element={<ProtectedLayout />}>
           <Route index element={<FeedPage />} />
           <Route path="posts" element={<MyPostsPage />} />
+          <Route path="crops" element={<MyCropsPage />} />
+          <Route path="crops/new" element={<CropUpsertPage />} />
+          <Route path="crops/:id/edit" element={<CropUpsertPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="weather" element={<WeatherPage />} />
           <Route path="posts/new" element={<NewPostPage />} />
