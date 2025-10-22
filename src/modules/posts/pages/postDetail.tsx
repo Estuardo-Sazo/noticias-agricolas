@@ -10,6 +10,11 @@ const gallery = [
   'https://images.unsplash.com/photo-1524592877031-9f4bd2c1fdf4?q=80&w=1200&auto=format&fit=crop',
 ]
 
+const author = {
+  name: 'Ing. Marta López',
+  avatar: 'https://i.pravatar.cc/80?img=1',
+}
+
 const comments = [
   {
     author: 'María_Paz',
@@ -38,7 +43,7 @@ export default function PostDetail() {
   const { id } = useParams()
 
   return (
-    <div className="pb-16">
+    <div className="pb-16 max-w-5xl mx-auto px-4">
       {/* Hero */}
       <div className="aspect-[21/9] w-full overflow-hidden rounded-2xl bg-gray-100">
         <img
@@ -53,7 +58,11 @@ export default function PostDetail() {
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
           La Revolución Verde: Innovaciones en Agricultura Sostenible {id ? `#${id}` : ''}
         </h1>
-        <div className="mt-3 flex items-center gap-6 text-sm text-gray-500">
+        <div className="mt-3 flex items-center flex-wrap gap-4 md:gap-6 text-sm text-gray-500">
+          <span className="inline-flex items-center gap-2">
+            <img src={author.avatar} alt={author.name} className="w-8 h-8 rounded-full ring-2 ring-emerald-100 object-cover" />
+            <span className="text-gray-800 font-medium">{author.name}</span>
+          </span>
           <span className="inline-flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary-600" /> Agrícola
           </span>
@@ -64,7 +73,7 @@ export default function PostDetail() {
       </header>
 
       {/* Content */}
-      <article className="prose prose-neutral max-w-none mt-6">
+      <article className="prose prose-neutral mt-6">
         <p>
           La agricultura sostenible no es solo una tendencia; es una necesidad urgente para asegurar el futuro de nuestro
           planeta. Con el crecimiento constante de la población mundial y la creciente preocupación por el cambio
