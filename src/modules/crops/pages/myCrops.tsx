@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { cropsService } from '../services/cropsService'
-import type { Crop } from '../types'
+import type { Crop } from '../../../model/crop'
 import CropCard from '../components/cropCard'
 import { useNavigate } from 'react-router-dom'
 
@@ -42,7 +42,7 @@ export default function MyCropsPage() {
           Aún no tienes cultivos. Crea el primero para llevar seguimiento.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
           {filtered.map(c => (
             <CropCard key={c.id} crop={c} onEdit={(id) => navigate(`/crops/${id}/edit`)} onDelete={handleDelete} />
           ))}

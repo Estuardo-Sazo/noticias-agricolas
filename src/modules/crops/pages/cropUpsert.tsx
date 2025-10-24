@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { cropsService } from '../services/cropsService'
-import type { Crop } from '../types'
+import type { Crop } from '../../../model/crop'
 import CropForm from '../components/CropForm'
 
 export default function CropUpsertPage() {

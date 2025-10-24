@@ -1,4 +1,4 @@
-import type { Crop } from '../types'
+import type { Crop } from '../../../model/crop'
 
 type Props = {
   crop: Crop

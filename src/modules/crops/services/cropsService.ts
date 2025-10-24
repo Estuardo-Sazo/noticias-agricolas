@@ -1,4 +1,4 @@
-import type { Crop, CropInput } from '../types'
+import type { Crop, CropInput } from '../../../model/crop'
 
 const KEY = 'crops'
 

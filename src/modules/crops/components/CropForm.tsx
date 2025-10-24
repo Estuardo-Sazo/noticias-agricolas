@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Crop, CropInput, AreaUnit, CropStatus } from '../types'
+import type { Crop, CropInput, AreaUnit, CropStatus } from '../../../model/crop'
 
 const statusOptions: CropStatus[] = ['Sembrado', 'En crecimiento', 'Cosechado', 'Pausado']
 const unitOptions: AreaUnit[] = ['ha', 'mz', 'm2']

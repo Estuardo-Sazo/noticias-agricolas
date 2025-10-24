@@ -115,7 +115,7 @@ export default function MyPostsPage() {
 				</div>
 
 				{/* Grid de tarjetas (todo tamaño) */}
-				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
 					{filtered.map((p) => (
 						<article key={p.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
 							<div className="aspect-[16/9] w-full overflow-hidden">

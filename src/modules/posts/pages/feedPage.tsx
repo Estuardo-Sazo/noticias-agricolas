@@ -1,6 +1,7 @@
 import PostCard from '../components/posts/PostCard'
 import CurrentWeatherCard from '../../weathers/components/CurrentWeatherCard'
-import AlertsList, { type Alert } from '../../weathers/components/AlertsList'
+import AlertsList from '../../weathers/components/AlertsList'
+import type { Alert } from '../../../model/weather'
 
 const mockPosts = [
   {
@@ -109,7 +110,7 @@ export default function FeedPage() {
         {/* Contenido principal */}
         <div>
           {/* Todas como destacados (variante large) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             {mockPosts.map((p, i) => (
               <PostCard key={`post-${i}`} {...p} variant="large" onOpen={() => navigate(`/posts/${i + 1}`)} />
             ))}

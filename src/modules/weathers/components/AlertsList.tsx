@@ -1,13 +1,6 @@
-export type Alert = {
-  title: string
-  description: string
-  severity: 'low' | 'medium' | 'high'
-  tags?: string[]
-}
+import type { Alert } from '../../../model/weather'
 
-type Props = {
-  alerts: Alert[]
-}
+type Props = { alerts: Alert[] }
 
 export default function AlertsList({ alerts }: Props) {
   if (!alerts?.length) {
