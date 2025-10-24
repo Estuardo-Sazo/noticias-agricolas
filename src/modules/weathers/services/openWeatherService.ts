@@ -34,6 +34,7 @@ export type WeatherBundle = {
   current: CurrentWeather
   daily: DailyForecast[]
   hourly?: HourlyForecast[]
+  coords: { lat: number; lon: number }
 }
 
 const CITY_ID_ATESCATEMPA = 3599633
@@ -147,14 +148,14 @@ export async function getWeatherAtescatempa(): Promise<WeatherBundle> {
       fetchOneCallDaily(lat, lon),
       fetchOneCallHourly(lat, lon).catch(() => fetchForecast5dHourlyApprox(CITY_ID_ATESCATEMPA)),
     ])
-    return { current, daily, hourly }
+    return { current, daily, hourly, coords: { lat, lon } }
   } catch (e) {
     // Fallback si OneCall no está habilitado en el plan
     const [daily, hourly] = await Promise.all([
       fetchForecast5dDailyApprox(CITY_ID_ATESCATEMPA),
       fetchForecast5dHourlyApprox(CITY_ID_ATESCATEMPA),
     ])
-    return { current, daily, hourly }
+    return { current, daily, hourly, coords: { lat, lon } }
   }
 }
 

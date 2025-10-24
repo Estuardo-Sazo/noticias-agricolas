@@ -3,6 +3,7 @@ import CurrentWeatherCard from '../components/CurrentWeatherCard'
 import ForecastDayCard from '../components/ForecastDayCard'
 import AlertsList from '../components/AlertsList'
 import TodaySummaryCard from '../components/TodaySummaryCard'
+import WeatherMap from '../components/WeatherMap'
 import { deriveInsights, getWeatherAtescatempa, type WeatherBundle } from '../services/openWeatherService'
 
 function dayLabelFromDate(dateISO: string) {
@@ -67,6 +68,11 @@ export default function WeatherPage() {
 								<section className="mt-8">
 									<TodaySummaryCard bundle={bundle} />
 								</section>
+
+											<section className="mt-8">
+												<h2 className="text-xl font-semibold mb-3">Mapa meteorológico</h2>
+												<WeatherMap center={bundle.coords} />
+											</section>
 
 					<section className="mt-8">
 						<h2 className="text-xl font-semibold mb-3">Pronóstico extendido (7 días)</h2>
