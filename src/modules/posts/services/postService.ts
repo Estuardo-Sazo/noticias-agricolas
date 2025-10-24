@@ -107,3 +107,23 @@ export async function getPostById(id: string): Promise<Post | null> {
   if (error) throw error
   return data ? mapRowToPost(data) : null
 }
+
+export async function listPosts(page: number, pageSize = 10): Promise<{ items: Post[]; hasMore: boolean }> {
+  const from = page * pageSize
+  // Pedimos una fila extra para saber si hay más (range es inclusivo)
+  const to = from + pageSize
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      id, title, excerpt, content, images, categories, badge,
+      comments_count, created_at, updated_at, author_id,
+      author:users(id,name,avatar_url)
+    `)
+    .order('created_at', { ascending: false })
+    .range(from, to)
+
+  if (error) throw error
+  const items = (data ?? []).slice(0, pageSize).map(mapRowToPost)
+  const hasMore = (data ?? []).length > pageSize
+  return { items, hasMore }
+}
