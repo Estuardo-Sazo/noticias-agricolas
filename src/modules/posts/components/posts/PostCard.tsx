@@ -12,6 +12,7 @@ type Props = {
   author?: { name: string; avatar?: string }
   variant?: 'default' | 'large'
   categories?: string[]
+  createdAt?: string
   onOpen?: () => void
   onReadMore?: () => void // compat
 }
@@ -24,10 +25,27 @@ function ChatIcon({ className = 'w-4 h-4' }: { className?: string }) {
   )
 }
 
-export default function PostCard({ images, image, title, excerpt, badge, commentsCount = 0, author, variant = 'default', categories = [], onOpen, onReadMore }: Props) {
+function formatPublishedEs(dateIso?: string) {
+  if (!dateIso) return ''
+  const d = new Date(dateIso)
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffHr = Math.floor(diffMin / 60)
+  if (diffMin < 1) return 'ahora'
+  if (diffMin < 60) return `hace ${diffMin} ${diffMin === 1 ? 'minuto' : 'minutos'}`
+  if (diffHr === 1) return 'hace 1 hora'
+  // >= 2 horas: fecha y hora completas
+  const fecha = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+  const hora = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+  return `${fecha}, ${hora}`
+}
+
+export default function PostCard({ images, image, title, excerpt, commentsCount = 0, author, variant = 'default', categories = [], createdAt, onOpen, onReadMore }: Props) {
   const navigate = useNavigate()
   const imgs = images && images.length > 0 ? images : image ? [image] : []
   const handleOpen = onOpen ?? onReadMore ?? (() => navigate('/posts/1'))
+  const publishedLabel = formatPublishedEs(createdAt)
 
   // Layout de galería: 1, 2, 3, 4+ imágenes
   function Gallery() {
@@ -93,10 +111,11 @@ export default function PostCard({ images, image, title, excerpt, badge, comment
               )}
               <span className="text-gray-800 font-medium truncate">{author.name}</span>
             </div>
-            {badge && (
+
+            {publishedLabel && (
               <span className="shrink-0 inline-flex items-center gap-1 text-xs text-gray-500">
                 <span className="w-2 h-2 rounded-full bg-primary-500" />
-                {badge}
+                {publishedLabel}
               </span>
             )}
           </div>
@@ -108,7 +127,7 @@ export default function PostCard({ images, image, title, excerpt, badge, comment
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {categories.slice(0, 3).map((c) => (
-              <span key={c} className="text-xs px-2 py-0.5 rounded-full border border-gray-300 bg-white text-gray-700">{c}</span>
+              <span key={c} className="text-xs px-2 py-0.5 rounded-full border border-primary-300 bg-primary-100 text-gray-700">{c}</span>
             ))}
             {categories.length > 3 && (
               <span className="text-xs px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600">+{categories.length - 3}</span>
@@ -122,7 +141,9 @@ export default function PostCard({ images, image, title, excerpt, badge, comment
             <span>{commentsCount}</span>
             <span className="text-gray-400">comentarios</span>
           </div>
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary-700 text-xs">Abrir publicación →</span>
+          <div className="inline-flex items-center gap-3">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary-700 text-xs">Abrir publicación →</span>
+          </div>
         </div>
       </div>
     </article>

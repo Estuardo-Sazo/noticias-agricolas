@@ -117,6 +117,7 @@ export default function FeedPage() {
                 commentsCount={p.commentsCount || 0}
                 author={{ name: p.author?.name || 'Autor', avatar: p.author?.avatarUrl }}
                 categories={p.categories || []}
+                createdAt={p.createdAt}
                 variant="large"
                 onOpen={() => navigate(`/posts/${p.id}`)}
               />
