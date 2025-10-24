@@ -35,6 +35,32 @@ export default function PostDetail() {
 
   const hero = useMemo(() => post?.images?.[0], [post])
   const gallery = useMemo(() => (post?.images ?? []).slice(1), [post])
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [viewerIndex, setViewerIndex] = useState(0)
+
+  function openViewer(i: number) {
+    setViewerIndex(i)
+    setViewerOpen(true)
+  }
+  function closeViewer() { setViewerOpen(false) }
+  function prevImage() { setViewerIndex((i) => (i - 1 + gallery.length) % gallery.length) }
+  function nextImage() { setViewerIndex((i) => (i + 1) % gallery.length) }
+
+  useEffect(() => {
+    if (!viewerOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeViewer()
+      else if (e.key === 'ArrowLeft') prevImage()
+      else if (e.key === 'ArrowRight') nextImage()
+    }
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [viewerOpen])
 
   if (loading) {
     return <div className="pb-16 max-w-5xl mx-auto px-4">Cargando…</div>
@@ -69,7 +95,7 @@ export default function PostDetail() {
           )}
           {post.createdAt && (
             <span className="inline-flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gray-400" /> {new Date(post.createdAt).toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' })}
+              <span className="w-2 h-2 rounded-full bg-gray-400" /> {new Date(post.createdAt).toLocaleString('es-ES', { day:'2-digit', month:'long', year:'numeric', hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
         </div>
@@ -90,11 +116,31 @@ export default function PostDetail() {
           <h3 className="text-xl font-semibold mb-4">Galería de imágenes</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {gallery.map((src, i) => (
-              <figure key={i} className="rounded-xl overflow-hidden border border-gray-200">
+              <figure key={i} className="rounded-xl overflow-hidden border border-gray-200 cursor-zoom-in" onClick={() => openViewer(i)}>
                 <img src={src} alt={"galería-" + i} className="w-full h-40 object-cover" />
               </figure>
             ))}
           </div>
+          {viewerOpen && gallery[viewerIndex] && (
+            <div className="fixed inset-0 z-50">
+              <div className="absolute inset-0 bg-black/80" onClick={closeViewer} />
+              <div className="absolute inset-0 flex items-center justify-center p-4 select-none">
+                {/* Controles */}
+                <button aria-label="Cerrar" onClick={closeViewer} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow grid place-items-center">✕</button>
+                {gallery.length > 1 && (
+                  <>
+                    <button aria-label="Anterior" onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow grid place-items-center">‹</button>
+                    <button aria-label="Siguiente" onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow grid place-items-center">›</button>
+                  </>
+                )}
+                {/* Imagen */}
+                <img src={gallery[viewerIndex]} alt={`vista-${viewerIndex + 1}`} className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" />
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/90 text-xs bg-black/30 px-2 py-1 rounded">
+                  {viewerIndex + 1} / {gallery.length}
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
