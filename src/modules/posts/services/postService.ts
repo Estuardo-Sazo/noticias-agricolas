@@ -73,3 +73,37 @@ export async function createPost(input: PostCreateInput): Promise<Post> {
     updatedAt: data.updated_at,
   }
 }
+
+function mapRowToPost(row: any): Post {
+  return {
+    id: row.id,
+    title: row.title,
+    excerpt: row.excerpt ?? undefined,
+    content: row.content ?? undefined,
+    images: Array.isArray(row.images) ? row.images : [],
+    categories: Array.isArray(row.categories) ? row.categories : [],
+    badge: row.badge ?? undefined,
+    commentsCount: row.comments_count ?? 0,
+    author: {
+      id: row.author?.id ?? row.author_id,
+      name: row.author?.name ?? '',
+      avatarUrl: row.author?.avatar_url ?? undefined,
+    },
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+export async function getPostById(id: string): Promise<Post | null> {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      id, title, excerpt, content, images, categories, badge,
+      comments_count, created_at, updated_at, author_id,
+      author:users(id,name,avatar_url)
+    `)
+    .eq('id', id)
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapRowToPost(data) : null
+}
