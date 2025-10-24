@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 type ImageItem = {
   file: File
@@ -18,11 +19,13 @@ function getExcerpt(text: string, max = 180) {
 }
 
 export default function NewPostPage() {
+  const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState<ImageItem[]>([])
   const [dragging, setDragging] = useState(false)
   const [selectedCats, setSelectedCats] = useState<string[]>(['Maíz', 'Sequía'])
+  const [saving, setSaving] = useState(false)
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -83,10 +86,32 @@ export default function NewPostPage() {
     )
   }
 
-  function handlePublish() {
-    // Aquí iría la integración con Supabase (insert) o API.
-    console.log('Publicar', { title, content, categories: selectedCats, images })
-    alert('Tu publicación está lista para enviarse (demo).')
+  async function handlePublish() {
+    if (!title.trim() || !content.trim()) {
+      alert('Título y contenido son obligatorios')
+      return
+    }
+    setSaving(true)
+    try {
+      const { uploadPostImages, createPost } = await import('../services/postService')
+      // Subir imágenes seleccionadas (si hay)
+      const urls = await uploadPostImages(images.map(i => i.file))
+      const excerpt = getExcerpt(content)
+      const post = await createPost({
+        title,
+        content,
+        excerpt,
+        images: urls,
+        categories: selectedCats,
+      })
+      // Navegar al detalle del post
+      navigate(`/posts/${post.id}`)
+    } catch (e) {
+      console.error(e)
+      alert('No se pudo publicar el post')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function handleDraft() {
@@ -111,6 +136,31 @@ export default function NewPostPage() {
               placeholder="Escribe un título conciso y descriptivo"
               className="w-full rounded-xl border border-gray-300 bg-gray-50 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-300"
             />
+          </div>
+
+           {/* Categorías */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Categorías</label>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => {
+                const active = selectedCats.includes(c)
+                return (
+                  <button
+                    type="button"
+                    key={c}
+                    onClick={() => toggleCat(c)}
+                    className={classNames(
+                      'text-xs px-3 py-1.5 rounded-full border transition-colors',
+                      active
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    )}
+                  >
+                    {c}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Contenido */}
@@ -171,38 +221,16 @@ export default function NewPostPage() {
             </div>
           </div>
 
-          {/* Categorías */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Categorías</label>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((c) => {
-                const active = selectedCats.includes(c)
-                return (
-                  <button
-                    type="button"
-                    key={c}
-                    onClick={() => toggleCat(c)}
-                    className={classNames(
-                      'text-xs px-3 py-1.5 rounded-full border transition-colors',
-                      active
-                        ? 'bg-primary-600 text-white border-primary-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    )}
-                  >
-                    {c}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+         
 
           {/* Acciones */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={handlePublish}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary-600 text-white hover:bg-primary-700 shadow-sm"
+              disabled={saving}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary-600 text-white hover:bg-primary-700 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Publicar
+              {saving ? 'Publicando…' : 'Publicar'}
             </button>
             <button
               onClick={handleDraft}
