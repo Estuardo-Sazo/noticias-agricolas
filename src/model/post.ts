@@ -10,6 +10,7 @@ export interface Post {
   badge?: string // p.ej. tiempo de lectura "8 min"
   commentsCount?: number
   author: AuthorRef
+  status?: 'published' | 'draft'
   createdAt?: string
   updatedAt?: string
 }

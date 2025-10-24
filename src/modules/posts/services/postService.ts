@@ -84,6 +84,7 @@ function mapRowToPost(row: any): Post {
     categories: Array.isArray(row.categories) ? row.categories : [],
     badge: row.badge ?? undefined,
     commentsCount: row.comments_count ?? 0,
+    status: row.status ?? undefined,
     author: {
       id: row.author?.id ?? row.author_id,
       name: row.author?.name ?? '',
@@ -116,7 +117,7 @@ export async function listPosts(page: number, pageSize = 10): Promise<{ items: P
     .from('posts')
     .select(`
       id, title, excerpt, content, images, categories, badge,
-      comments_count, created_at, updated_at, author_id,
+      comments_count, status, created_at, updated_at, author_id,
       author:users(id,name,avatar_url)
     `)
     .order('created_at', { ascending: false })
@@ -126,4 +127,46 @@ export async function listPosts(page: number, pageSize = 10): Promise<{ items: P
   const items = (data ?? []).slice(0, pageSize).map(mapRowToPost)
   const hasMore = (data ?? []).length > pageSize
   return { items, hasMore }
+}
+
+export async function listMyPosts(
+  status: 'published' | 'draft' | 'all' = 'all',
+  query?: string
+): Promise<Post[]> {
+  const { data: auth } = await supabase.auth.getUser()
+  const uid = auth.user?.id
+  if (!uid) throw new Error('No autenticado')
+
+  let req = supabase
+    .from('posts')
+    .select(`
+      id, title, excerpt, content, images, categories, badge,
+      comments_count, status, created_at, updated_at, author_id
+    `)
+    .eq('author_id', uid)
+    .order('created_at', { ascending: false })
+
+  if (status !== 'all') {
+    req = req.eq('status', status)
+  }
+  if (query && query.trim()) {
+    // Búsqueda simple por título o extracto (si hay extensiones de texto instaladas, usar ilike)
+    req = req.or(
+      `title.ilike.%${query}%,excerpt.ilike.%${query}%`
+    ) as any
+  }
+
+  const { data, error } = await req
+  if (error) throw error
+  return (data ?? []).map(mapRowToPost)
+}
+
+export async function setPostStatus(id: string, status: 'published' | 'draft'): Promise<void> {
+  const { error } = await supabase
+    .from('posts')
+    .update({ status })
+    .eq('id', id)
+    .select('id')
+    .single()
+  if (error) throw error
 }
