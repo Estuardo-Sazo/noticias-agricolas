@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import CommentsList from '../components/comments/CommentsList'
 import { getPostById } from '../services/postService'
 import type { Post } from '../../../model/post'
+import { useAuth } from '../../../context/AuthContext'
 
 export default function PostDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -95,20 +98,32 @@ export default function PostDetail() {
         </section>
       )}
 
-      {/* Comments (placeholder UI) */}
+      {/* Comments */}
       <section className="mt-10">
         <h3 className="text-xl font-semibold mb-4">Comentarios</h3>
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <textarea
-            className="w-full p-4 outline-none resize-none min-h-28"
-            placeholder="Escribe un comentario..."
-          />
-          <div className="p-3 border-t flex justify-end">
-            <button className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700">Enviar</button>
-          </div>
-        </div>
 
-        <CommentsList comments={[]} />
+        {/* Composer solo para usuarios autenticados */}
+        {user ? (
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <textarea
+              className="w-full p-4 outline-none resize-none min-h-28"
+              placeholder="Escribe un comentario..."
+            />
+            <div className="p-3 border-t flex justify-end">
+              <button className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700">Enviar</button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 text-amber-900 p-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm">Inicia sesión para poder comentar en esta publicación.</p>
+            <button onClick={() => navigate('/login')} className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 text-sm">Iniciar sesión</button>
+          </div>
+        )}
+
+        {/* Lista de comentarios (solo lectura) */}
+        <div className="mt-4">
+          <CommentsList comments={[]} />
+        </div>
       </section>
     </div>
   )
