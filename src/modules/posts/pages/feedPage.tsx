@@ -132,7 +132,7 @@ export default function FeedPage() {
         <aside className="hidden lg:block">
           <div className="sticky top-20 space-y-4">
             {/* Búsqueda y acciones */}
-            <div className="flex items-center gap-2">
+           {/*  <div className="flex items-center gap-2">
               <input
                 type="search"
                 placeholder="Buscar artículos, guías..."
@@ -140,7 +140,7 @@ export default function FeedPage() {
               />
               <button className="h-10 px-3 rounded-lg border border-gray-300 text-sm">Filtros</button>
               <button className="h-10 px-3 rounded-lg border border-gray-300 text-sm">Ordenar</button>
-            </div>
+            </div> */}
 
             {/* Clima */}
             <CurrentWeatherCard
