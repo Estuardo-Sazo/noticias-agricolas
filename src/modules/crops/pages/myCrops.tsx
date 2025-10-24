@@ -10,7 +10,17 @@ export default function MyCropsPage() {
   const [q, setQ] = useState('')
 
   useEffect(() => {
-    setCrops(cropsService.list())
+    let alive = true
+    async function load() {
+      try {
+        const rows = await cropsService.list()
+        if (alive) setCrops(rows)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    load()
+    return () => { alive = false }
   }, [])
 
   const filtered = useMemo(() => {
@@ -20,10 +30,16 @@ export default function MyCropsPage() {
     )
   }, [crops, q])
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (!confirm('¿Eliminar cultivo?')) return
-    cropsService.remove(id)
-    setCrops(cropsService.list())
+    try {
+      await cropsService.remove(id)
+      const rows = await cropsService.list()
+      setCrops(rows)
+    } catch (e) {
+      console.error(e)
+      alert('No se pudo eliminar el cultivo')
+    }
   }
 
   return (

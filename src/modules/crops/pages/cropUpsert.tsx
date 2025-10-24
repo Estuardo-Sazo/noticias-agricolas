@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { cropsService } from '../services/cropsService'
-import type { Crop } from '../../../model/crop'
+import type { Crop, CropInput } from '../../../model/crop'
 import CropForm from '../components/CropForm'
 
 export default function CropUpsertPage() {
@@ -10,19 +10,32 @@ export default function CropUpsertPage() {
   const [initial, setInitial] = useState<Crop | undefined>()
 
   useEffect(() => {
-    if (id) {
-      const c = cropsService.get(id)
-      setInitial(c)
+    let alive = true
+    async function load() {
+      if (!id) return
+      try {
+        const c = await cropsService.get(id)
+        if (alive) setInitial(c)
+      } catch (e) {
+        console.error(e)
+      }
     }
+    load()
+    return () => { alive = false }
   }, [id])
 
-  function handleSubmit(data: any) {
-    if (id && initial) {
-      cropsService.update(id, data)
-    } else {
-      cropsService.create(data)
+  async function handleSubmit(data: CropInput) {
+    try {
+      if (id && initial) {
+        await cropsService.update(id, data)
+      } else {
+        await cropsService.create(data)
+      }
+      navigate('/crops')
+    } catch (e) {
+      console.error(e)
+      alert('No se pudo guardar el cultivo')
     }
-    navigate('/crops')
   }
 
   return (
