@@ -109,11 +109,15 @@ export async function getPostById(id: string): Promise<Post | null> {
   return data ? mapRowToPost(data) : null
 }
 
-export async function listPosts(page: number, pageSize = 10): Promise<{ items: Post[]; hasMore: boolean }> {
+export async function listPosts(
+  page: number,
+  pageSize = 10,
+  status: 'published' | 'draft' | 'all' = 'published'
+): Promise<{ items: Post[]; hasMore: boolean }> {
   const from = page * pageSize
   // Pedimos una fila extra para saber si hay más (range es inclusivo)
   const to = from + pageSize
-  const { data, error } = await supabase
+  let req = supabase
     .from('posts')
     .select(`
       id, title, excerpt, content, images, categories, badge,
@@ -122,6 +126,12 @@ export async function listPosts(page: number, pageSize = 10): Promise<{ items: P
     `)
     .order('created_at', { ascending: false })
     .range(from, to)
+
+  if (status !== 'all') {
+    req = req.eq('status', status) as any
+  }
+
+  const { data, error } = await req
 
   if (error) throw error
   const items = (data ?? []).slice(0, pageSize).map(mapRowToPost)
