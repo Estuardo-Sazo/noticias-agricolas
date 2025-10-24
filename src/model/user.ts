@@ -5,6 +5,7 @@ export interface UserProfile {
   email?: string
   name: string
   avatarUrl?: string
+  location?: string
   role?: 'admin' | 'editor' | 'user'
   createdAt?: string
   updatedAt?: string

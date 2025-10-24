@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { getMyProfile, updateMyProfile, uploadMyAvatar } from '../services/userService'
 
 export default function Profile() {
 	const { logout } = useAuth()
@@ -8,7 +9,9 @@ export default function Profile() {
 
 	const [name, setName] = useState('Juan Pérez')
 	const [location, setLocation] = useState('Ciudad de México, México')
-	const [interests, setInterests] = useState<Record<string, boolean>>({
+	const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+	const [avatarFile, setAvatarFile] = useState<File | null>(null)
+	const [_interests, _setInterests] = useState<Record<string, boolean>>({
 		Maíz: true,
 		Frijol: false,
 		Café: true,
@@ -17,13 +20,33 @@ export default function Profile() {
 		Tomate: false,
 	})
 
-	function toggleInterest(key: string) {
-		setInterests((prev) => ({ ...prev, [key]: !prev[key] }))
-	}
 
-	function handleSave() {
-		
-		console.log({ name, location, interests })
+	useEffect(() => {
+		// Prefill con datos reales
+		getMyProfile()
+			.then((p) => {
+				if (p) {
+					setName(p.name || '')
+					setLocation(p.location || '')
+					setAvatarPreview(p.avatarUrl || null)
+				}
+			})
+			.catch(console.error)
+	}, [])
+
+	async function handleSave() {
+		try {
+			let avatarUrl: string | undefined = undefined
+			if (avatarFile) {
+				avatarUrl = await uploadMyAvatar(avatarFile)
+			}
+			await updateMyProfile({ name, location, avatarUrl })
+			setAvatarFile(null)
+			alert('Perfil actualizado')
+		} catch (e) {
+			console.error(e)
+			alert('No se pudo guardar el perfil')
+		}
 	}
 
 	async function handleLogout() {
@@ -38,10 +61,22 @@ export default function Profile() {
 
 			{/* Card */}
 			<div className="max-w-3xl mx-auto bg-white rounded-2xl shadow border border-gray-200 p-6 sm:p-10">
-				<div className="flex flex-col items-center text-center">
-					<div className="w-24 h-24 rounded-full ring-4 ring-white shadow -mt-16 md:mt-0 overflow-hidden bg-gray-100">
-						<img src="/assets/avatar.jpg" alt="avatar" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-					</div>
+								<div className="flex flex-col items-center text-center">
+										<div className="w-24 h-24 rounded-full ring-4 ring-white shadow -mt-16 md:mt-0 overflow-hidden bg-gray-100">
+												{avatarPreview ? (
+													<img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+												) : (
+													<div className="w-full h-full grid place-items-center text-gray-400">Sin avatar</div>
+												)}
+										</div>
+										<label className="mt-3 inline-flex items-center gap-2 text-sm text-primary-700 cursor-pointer">
+											<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
+												const f = e.target.files?.[0] || null
+												setAvatarFile(f)
+												if (f) setAvatarPreview(URL.createObjectURL(f))
+											}} />
+											<span className="px-3 py-1 rounded-lg border border-primary-500 hover:bg-primary-50">Cambiar avatar</span>
+										</label>
 					<h1 className="text-2xl font-extrabold mt-4">Mi Perfil</h1>
 					<p className="text-gray-500">Gestiona tu información personal y preferencias.</p>
 				</div>
