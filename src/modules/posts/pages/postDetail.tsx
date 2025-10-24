@@ -4,7 +4,7 @@ import CommentsList from '../components/comments/CommentsList'
 import { getPostById } from '../services/postService'
 import type { Post } from '../../../model/post'
 import { useAuth } from '../../../context/AuthContext'
-import { addComment, fetchComments } from '../services/commentService'
+import { addComment, fetchComments, deleteComment } from '../services/commentService'
 
 export default function PostDetail() {
   const { id } = useParams()
@@ -14,7 +14,7 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   // Comentarios UI
-  type UIComment = { author: string; avatar: string; date: string; text: string }
+  type UIComment = { id: string; authorId?: string; author: string; avatar: string; date: string; text: string; canDelete?: boolean }
   const [comments, setComments] = useState<UIComment[]>([])
   const [cPage, setCPage] = useState(0)
   const [cHasMore, setCHasMore] = useState(true)
@@ -64,11 +64,13 @@ export default function PostDetail() {
     return () => { alive = false }
   }, [id])
 
-  function rowToUIComment(c: { author: { name?: string; avatarUrl?: string }; createdAt: string; text: string }): UIComment {
+  function rowToUIComment(c: { id: string; author: { id?: string; name?: string; avatarUrl?: string }; createdAt: string; text: string }): UIComment {
     const avatar = c.author?.avatarUrl || 'https://i.pravatar.cc/80?u=' + (c.author?.name || 'anon')
     const author = c.author?.name || 'Anónimo'
     const date = new Date(c.createdAt).toLocaleString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    return { author, avatar, date, text: c.text }
+    const authorId = c.author?.id
+    const canDelete = !!(user?.id && authorId && user.id === authorId)
+    return { id: c.id, authorId, author, avatar, date, text: c.text, canDelete }
   }
 
   async function loadMoreComments() {
@@ -95,13 +97,24 @@ export default function PostDetail() {
       setCSubmitting(true)
       const created = await addComment(id, text)
       // Comentarios están ordenados ascendente; agregamos al final
-      setComments((prev) => [...prev, rowToUIComment({ author: created.author, createdAt: created.createdAt, text: created.text })])
+      setComments((prev) => [...prev, rowToUIComment({ id: created.id, author: created.author, createdAt: created.createdAt, text: created.text })])
       setCInput('')
     } catch (e: any) {
       console.error(e)
       alert(e?.message || 'No se pudo enviar el comentario')
     } finally {
       setCSubmitting(false)
+    }
+  }
+
+  async function handleDeleteComment(cid: string) {
+    if (!id) return
+    try {
+      await deleteComment(cid)
+      setComments(prev => prev.filter(c => c.id !== cid))
+    } catch (e: any) {
+      console.error(e)
+      alert(e?.message || 'No se pudo eliminar el comentario')
     }
   }
 
@@ -247,7 +260,7 @@ export default function PostDetail() {
 
         {/* Lista de comentarios (solo lectura) */}
         <div className="mt-4">
-          <CommentsList comments={comments} />
+          <CommentsList comments={comments} onDelete={handleDeleteComment} />
           {cHasMore && (
             <div className="mt-4 flex justify-center">
               <button onClick={loadMoreComments} disabled={cLoading} className="px-3 py-1.5 rounded-lg border bg-white hover:bg-gray-50 disabled:opacity-50">

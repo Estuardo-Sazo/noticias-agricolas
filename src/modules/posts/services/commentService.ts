@@ -65,3 +65,15 @@ export async function addComment(postId: string, text: string): Promise<ModelCom
   if (error) throw error
   return mapRowToComment(data)
 }
+
+export async function deleteComment(commentId: string): Promise<void> {
+  const { data: auth } = await supabase.auth.getUser()
+  const uid = auth.user?.id
+  if (!uid) throw new Error('No autenticado')
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('author_id', uid)
+  if (error) throw error
+}
