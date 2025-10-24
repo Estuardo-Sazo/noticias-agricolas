@@ -4,6 +4,7 @@ import CommentsList from '../components/comments/CommentsList'
 import { getPostById } from '../services/postService'
 import type { Post } from '../../../model/post'
 import { useAuth } from '../../../context/AuthContext'
+import { addComment, fetchComments } from '../services/commentService'
 
 export default function PostDetail() {
   const { id } = useParams()
@@ -12,6 +13,14 @@ export default function PostDetail() {
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Comentarios UI
+  type UIComment = { author: string; avatar: string; date: string; text: string }
+  const [comments, setComments] = useState<UIComment[]>([])
+  const [cPage, setCPage] = useState(0)
+  const [cHasMore, setCHasMore] = useState(true)
+  const [cLoading, setCLoading] = useState(false)
+  const [cInput, setCInput] = useState('')
+  const [cSubmitting, setCSubmitting] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -32,6 +41,69 @@ export default function PostDetail() {
       alive = false
     }
   }, [id])
+
+  // Cargar comentarios
+  useEffect(() => {
+    let alive = true
+    async function loadFirstPage() {
+      if (!id) return
+      try {
+        setCLoading(true)
+        const { items, hasMore } = await fetchComments(id, 0, 10)
+        if (!alive) return
+        setComments(items.map(rowToUIComment))
+        setCPage(0)
+        setCHasMore(hasMore)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        if (alive) setCLoading(false)
+      }
+    }
+    loadFirstPage()
+    return () => { alive = false }
+  }, [id])
+
+  function rowToUIComment(c: { author: { name?: string; avatarUrl?: string }; createdAt: string; text: string }): UIComment {
+    const avatar = c.author?.avatarUrl || 'https://i.pravatar.cc/80?u=' + (c.author?.name || 'anon')
+    const author = c.author?.name || 'Anónimo'
+    const date = new Date(c.createdAt).toLocaleString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    return { author, avatar, date, text: c.text }
+  }
+
+  async function loadMoreComments() {
+    if (!id || cLoading || !cHasMore) return
+    try {
+      setCLoading(true)
+      const nextPage = cPage + 1
+      const { items, hasMore } = await fetchComments(id, nextPage, 10)
+      setComments((prev) => [...prev, ...items.map(rowToUIComment)])
+      setCPage(nextPage)
+      setCHasMore(hasMore)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setCLoading(false)
+    }
+  }
+
+  async function handleSubmitComment() {
+    if (!user || !id) return
+    const text = cInput.trim()
+    if (!text) return
+    try {
+      setCSubmitting(true)
+      const created = await addComment(id, text)
+      // Comentarios están ordenados ascendente; agregamos al final
+      setComments((prev) => [...prev, rowToUIComment({ author: created.author, createdAt: created.createdAt, text: created.text })])
+      setCInput('')
+    } catch (e: any) {
+      console.error(e)
+      alert(e?.message || 'No se pudo enviar el comentario')
+    } finally {
+      setCSubmitting(false)
+    }
+  }
 
   const hero = useMemo(() => post?.images?.[0], [post])
   const gallery = useMemo(() => (post?.images ?? []).slice(1), [post])
@@ -154,9 +226,16 @@ export default function PostDetail() {
             <textarea
               className="w-full p-4 outline-none resize-none min-h-28"
               placeholder="Escribe un comentario..."
+              value={cInput}
+              onChange={(e) => setCInput(e.target.value)}
+              disabled={cSubmitting}
             />
             <div className="p-3 border-t flex justify-end">
-              <button className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700">Enviar</button>
+              <button
+                onClick={handleSubmitComment}
+                disabled={!cInput.trim() || cSubmitting}
+                className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >{cSubmitting ? 'Enviando…' : 'Enviar'}</button>
             </div>
           </div>
         ) : (
@@ -168,7 +247,14 @@ export default function PostDetail() {
 
         {/* Lista de comentarios (solo lectura) */}
         <div className="mt-4">
-          <CommentsList comments={[]} />
+          <CommentsList comments={comments} />
+          {cHasMore && (
+            <div className="mt-4 flex justify-center">
+              <button onClick={loadMoreComments} disabled={cLoading} className="px-3 py-1.5 rounded-lg border bg-white hover:bg-gray-50 disabled:opacity-50">
+                {cLoading ? 'Cargando…' : 'Cargar más'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
