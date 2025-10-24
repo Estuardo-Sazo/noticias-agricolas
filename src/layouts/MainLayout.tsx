@@ -8,7 +8,7 @@ import ProfileCompletionModal from '../components/common/ProfileCompletionModal'
 type Props = { children: ReactNode }
 
 export default function MainLayout({ children }: Props) {
-	const { logout } = useAuth()
+	const { user, logout } = useAuth()
 	const navigate = useNavigate()
 
 	async function handleLogout() {
@@ -19,8 +19,8 @@ export default function MainLayout({ children }: Props) {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Top navigations */}
-			<MobileTopbar onLogout={handleLogout} />
-			<TopNav onLogout={handleLogout} />
+			<MobileTopbar onLogout={user ? handleLogout : undefined} />
+			<TopNav onLogout={user ? handleLogout : undefined} />
 
 			{/* Modal global para completar perfil */}
 			<ProfileCompletionModal />
