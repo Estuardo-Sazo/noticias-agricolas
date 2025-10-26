@@ -16,7 +16,7 @@ export default function TopNav({ onLogout }: Props) {
       <div className="mx-auto px-6 h-14 flex items-center justify-between">
         {/* Branding */}
         <Link to="/" className="flex items-center gap-2 text-primary-700 font-bold text-lg">
-          <span className="inline-block w-4 h-4 rounded-full bg-primary-600" aria-hidden />
+         
           Agrícola
         </Link>
 

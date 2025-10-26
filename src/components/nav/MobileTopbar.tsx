@@ -24,7 +24,7 @@ export default function MobileTopbar({ onLogout }: Props) {
           ☰
         </button>
         <Link to="/" className="flex items-center gap-2 text-primary-700 font-bold">
-          <span className="inline-block w-4 h-4 rounded-full bg-primary-600" />
+         
           Agrícola
         </Link>
         {user ? (
