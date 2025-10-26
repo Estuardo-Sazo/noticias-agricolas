@@ -125,23 +125,12 @@ export default function FeedPage() {
         <h1 className="text-2xl font-bold">Publicaciones Recientes</h1>
       </div>
 
-      {/* Controles de búsqueda en móvil */}
-      <div className="flex items-center gap-2 mb-4 lg:hidden">
-        <input
-          type="search"
-          placeholder="Buscar artículos, guías..."
-          className="h-10 flex-1 rounded-lg border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        />
-        <button className="h-10 px-3 rounded-lg border border-gray-300 text-sm">Filtros</button>
-        <button className="h-10 px-3 rounded-lg border border-gray-300 text-sm">Ordenar</button>
-      </div>
-
       {/* Layout: contenido + barra derecha sticky */}
       <div className="lg:grid lg:grid-cols-[1fr_360px] lg:gap-6">
         {/* Contenido principal */}
         <div>
           {/* Lista de posts (más recientes primero), 10 por página con infinito */}
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {posts.map((p) => (
               <PostCard
                 key={p.id}
