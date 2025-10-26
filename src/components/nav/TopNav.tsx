@@ -24,6 +24,7 @@ export default function TopNav({ onLogout }: Props) {
         <nav className="flex items-center gap-1">
           <NavLink to="/" end className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Inicio</NavLink>
           <NavLink to="/weather" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Clima</NavLink>
+          <NavLink to="/articles" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Artículos</NavLink>
           {user && (
             <>
               <NavLink to="/profile" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Mi Perfil</NavLink>
@@ -37,7 +38,11 @@ export default function TopNav({ onLogout }: Props) {
         {/* Right actions */}
         <div className="flex items-center gap-2">
           {user && (
-            <Link to="/posts/new" className="hidden lg:inline-flex px-3 py-2 rounded-lg border border-primary-500 text-primary-700 hover:bg-primary-50 text-sm">Nuevo post</Link>
+            <>
+              <Link to="/posts/new" className="hidden lg:inline-flex px-3 py-2 rounded-lg border border-primary-500 text-primary-700 hover:bg-primary-50 text-sm">Nuevo post</Link>
+              {/* Intentaremos mostrar este botón solo a admin/editor; si no, la página bloquea */}
+              <Link to="/articles/new" className="hidden lg:inline-flex px-3 py-2 rounded-lg border border-primary-500 text-primary-700 hover:bg-primary-50 text-sm">Nuevo artículo</Link>
+            </>
           )}
           {user && onLogout ? (
             <button onClick={onLogout} className="px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 text-sm">Cerrar sesión</button>

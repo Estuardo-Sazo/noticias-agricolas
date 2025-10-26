@@ -44,11 +44,13 @@ export default function MobileTopbar({ onLogout }: Props) {
           <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
             <NavLink to="/" className="block px-4 py-3 hover:bg-gray-50">Inicio</NavLink>
             <NavLink to="/weather" className="block px-4 py-3 hover:bg-gray-50">Clima</NavLink>
+            <NavLink to="/articles" className="block px-4 py-3 hover:bg-gray-50">Artículos</NavLink>
             {user ? (
               <>
                 <NavLink to="/profile" className="block px-4 py-3 hover:bg-gray-50">Mi Perfil</NavLink>
                 <NavLink to="/crops" className="block px-4 py-3 hover:bg-gray-50">Mis Cultivos</NavLink>
                 <NavLink to="/posts" className="block px-4 py-3 hover:bg-gray-50">Mis Publicaciones</NavLink>
+                <NavLink to="/articles/new" className="block px-4 py-3 hover:bg-gray-50">Nuevo artículo</NavLink>
                 {onLogout && (
                   <button onClick={() => { setOpen(false); onLogout() }} className="w-full text-left text-red-600 px-4 py-3 hover:bg-red-50">Cerrar sesión</button>
                 )}

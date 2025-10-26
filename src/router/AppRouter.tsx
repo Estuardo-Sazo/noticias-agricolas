@@ -6,6 +6,9 @@ import NewPostPage from '../modules/posts/pages/newPost'
 import MyPostsPage from '../modules/posts/pages/myPost'
 import PostDetail from '../modules/posts/pages/postDetail'
 import WeatherPage from '../modules/weathers/pages/weatherPage'
+import ArticlesListPage from '../modules/articles/pages/ArticlesListPage'
+import ArticleDetailPage from '../modules/articles/pages/ArticleDetailPage'
+import ArticleUpsertPage from '../modules/articles/pages/ArticleUpsertPage'
 import MainLayout from '../layouts/MainLayout'
 import MyCropsPage from '../modules/crops/pages/myCrops'
 import CropUpsertPage from '../modules/crops/pages/cropUpsert'
@@ -38,6 +41,8 @@ export default function AppRouter() {
           <Route path="/" element={<FeedPage />} />
           <Route path="/weather" element={<WeatherPage />} />
           <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/articles" element={<ArticlesListPage />} />
+          <Route path="/articles/:id" element={<ArticleDetailPage />} />
         </Route>
 
         {/* Privadas: requieren sesión */}
@@ -45,6 +50,8 @@ export default function AppRouter() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/posts" element={<MyPostsPage />} />
           <Route path="/posts/new" element={<NewPostPage />} />
+          <Route path="/articles/new" element={<ArticleUpsertPage />} />
+          <Route path="/articles/:id/edit" element={<ArticleUpsertPage />} />
           <Route path="/crops" element={<MyCropsPage />} />
           <Route path="/crops/new" element={<CropUpsertPage />} />
           <Route path="/crops/:id/edit" element={<CropUpsertPage />} />
