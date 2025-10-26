@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { getMyProfile } from '../../modules/users/services/userService'
 
 type Props = {
   onLogout?: () => void
@@ -9,12 +10,32 @@ type Props = {
 export default function MobileTopbar({ onLogout }: Props) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
+  const [role, setRole] = useState<'admin' | 'editor' | 'user' | undefined>(undefined)
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     setOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    let alive = true
+    if (!user) { setRole(undefined); return }
+    ;(async () => {
+      try {
+        const me = await getMyProfile()
+        if (!alive) return
+        setRole(me?.role)
+      } catch {
+        if (!alive) return
+        setRole(undefined)
+      }
+    })()
+    return () => { alive = false }
+  }, [user?.id])
+
+  const isAdmin = role === 'admin'
+  const canWriteArticles = role === 'admin' || role === 'editor'
 
   return (
     <>
@@ -49,9 +70,14 @@ export default function MobileTopbar({ onLogout }: Props) {
             {user ? (
               <>
                 <NavLink to="/profile" className="block px-4 py-3 hover:bg-gray-50">Mi Perfil</NavLink>
+                {isAdmin && (
+                  <NavLink to="/admin/users" className="block px-4 py-3 hover:bg-gray-50">Admin</NavLink>
+                )}
                 <NavLink to="/crops" className="block px-4 py-3 hover:bg-gray-50">Mis Cultivos</NavLink>
                 <NavLink to="/posts" className="block px-4 py-3 hover:bg-gray-50">Mis Publicaciones</NavLink>
-                <NavLink to="/articles/new" className="block px-4 py-3 hover:bg-gray-50">Nuevo artículo</NavLink>
+                {canWriteArticles && (
+                  <NavLink to="/articles/new" className="block px-4 py-3 hover:bg-gray-50">Nuevo artículo</NavLink>
+                )}
                 {onLogout && (
                   <button onClick={() => { setOpen(false); onLogout() }} className="w-full text-left text-red-600 px-4 py-3 hover:bg-red-50">Cerrar sesión</button>
                 )}

@@ -13,6 +13,7 @@ import MainLayout from '../layouts/MainLayout'
 import MyCropsPage from '../modules/crops/pages/myCrops'
 import CropUpsertPage from '../modules/crops/pages/cropUpsert'
 import { useAuth } from '../context/AuthContext'
+import AdminUsersPage from '../modules/users/pages/adminUsers'
 
 export default function AppRouter() {
   function PublicLayout() {
@@ -24,7 +25,13 @@ export default function AppRouter() {
   }
 
   function PrivateLayout() {
-    const { user } = useAuth()
+    const { user, loading } = useAuth()
+    // Esperar a que el estado de auth se hidrate antes de decidir
+    if (loading) return (
+      <MainLayout>
+        <div className="p-6">Cargando…</div>
+      </MainLayout>
+    )
     if (!user) return <Navigate to="/login" replace />
     return (
       <MainLayout>
@@ -49,6 +56,7 @@ export default function AppRouter() {
         {/* Privadas: requieren sesión */}
         <Route element={<PrivateLayout />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/posts" element={<MyPostsPage />} />
           <Route path="/posts/new" element={<NewPostPage />} />
           <Route path="/articles/new" element={<ArticleUpsertPage />} />
