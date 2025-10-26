@@ -36,10 +36,11 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        {/* Públicas: fanpage (feed), clima y detalle de post */}
+        {/* Públicas: artículos como home, clima, feed de posts y detalle de post */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<FeedPage />} />
+          <Route path="/" element={<ArticlesListPage />} />
           <Route path="/weather" element={<WeatherPage />} />
+          <Route path="/feed" element={<FeedPage />} />
           <Route path="/posts/:id" element={<PostDetail />} />
           <Route path="/articles" element={<ArticlesListPage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />

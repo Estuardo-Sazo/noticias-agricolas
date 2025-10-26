@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { getArticleById, getArticleBySlug } from '../services/articleService'
 import type { Article } from '../../../model'
 import CommentsList from '../../posts/components/comments/CommentsList'
 import { addArticleComment, deleteArticleComment, fetchArticleComments } from '../services/articleCommentsService'
+import { useAuth } from '../../../context/AuthContext'
 
 export default function ArticleDetailPage() {
   const params = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const idOrSlug = params.id as string
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
@@ -52,13 +55,15 @@ export default function ArticleDetailPage() {
   }
 
   function rowToUIComment(c: any) {
+    const authorId: string | undefined = c.author?.id
+    const canDelete = !!(user?.id && authorId && user.id === authorId)
     return {
       id: c.id,
       author: c.author?.name || 'Usuario',
       avatar: c.author?.avatarUrl || `https://api.dicebear.com/9.x/identicon/svg?seed=${c.author?.id || 'u'}`,
       date: new Date(c.createdAt).toLocaleString(),
       text: c.text,
-      canDelete: true, // la API ya valida autor; si no es autor, borrado fallará
+      canDelete,
     }
   }
 
@@ -69,7 +74,7 @@ export default function ArticleDetailPage() {
   }, [article?.id])
 
   async function handleSubmitComment() {
-    if (!article) return
+    if (!article || !user) return
     const text = cInput.trim()
     if (!text) return
     try {
@@ -97,34 +102,68 @@ export default function ArticleDetailPage() {
   if (loading) return <p className="p-4">Cargando…</p>
   if (!article) return <p className="p-4">No encontrado</p>
 
-  return (
-    <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-3">{article.title}</h1>
-      {article.excerpt && <p className="text-gray-600 mb-4">{article.excerpt}</p>}
-      <article className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+  const cover = article.images?.[0]
+  const created = article.createdAt ? new Date(article.createdAt) : null
+  const formattedDate = created ? created.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : ''
+  const authorName = article.author?.name || 'Autor'
+  const authorAvatar = article.author?.avatarUrl || `https://api.dicebear.com/9.x/identicon/svg?seed=${article.author?.id || 'u'}`
 
-      {/* Comentarios */}
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Comentarios</h2>
-        <div className="mt-4">
-          <textarea
-            className="w-full border rounded-lg p-2"
-            rows={3}
-            placeholder="Escribe un comentario"
-            value={cInput}
-            onChange={(e) => setCInput(e.target.value)}
-            disabled={cSubmitting}
-          />
-          <div className="mt-2 flex justify-end">
-            <button
-              onClick={handleSubmitComment}
-              disabled={cSubmitting}
-              className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50"
-            >
-              {cSubmitting ? 'Enviando…' : 'Comentar'}
-            </button>
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      {/* Header */}
+      <header className="mb-6">
+        <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">{article.title}</h1>
+
+        <div className="mt-4 flex items-center gap-3">
+          <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full border" />
+          <div className="text-sm">
+            <p className="font-medium text-gray-900">{authorName}</p>
+            {formattedDate && <p className="text-gray-500">{formattedDate}</p>}
           </div>
         </div>
+      </header>
+
+      {/* Cover */}
+      {cover && (
+        <figure className="mb-8">
+          <img src={cover} alt="Imagen de portada" className="w-full rounded-2xl border object-cover max-h-[480px]" />
+        </figure>
+      )}
+
+      {/* Content */}
+      <article className="prose prose-lg max-w-none prose-headings:scroll-mt-20">
+        <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+      </article>
+
+      {/* Comentarios */}
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Comentarios</h2>
+        {/* Composer solo para usuarios autenticados */}
+        {user ? (
+          <div className="mt-4 bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <textarea
+              className="w-full p-4 outline-none resize-none min-h-28"
+              placeholder="Escribe un comentario..."
+              value={cInput}
+              onChange={(e) => setCInput(e.target.value)}
+              disabled={cSubmitting}
+            />
+            <div className="p-3 border-t flex justify-end">
+              <button
+                onClick={handleSubmitComment}
+                disabled={!cInput.trim() || cSubmitting}
+                className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {cSubmitting ? 'Enviando…' : 'Enviar'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 p-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm">Inicia sesión para poder comentar en este artículo.</p>
+            <button onClick={() => navigate('/login')} className="px-3 py-1.5 rounded-lg border border-amber-300 bg-white hover:bg-amber-100 text-sm">Iniciar sesión</button>
+          </div>
+        )}
 
         <CommentsList comments={comments} onDelete={handleDeleteComment} />
 

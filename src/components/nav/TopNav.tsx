@@ -24,6 +24,7 @@ export default function TopNav({ onLogout }: Props) {
         <nav className="flex items-center gap-1">
           <NavLink to="/" end className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Inicio</NavLink>
           <NavLink to="/weather" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Clima</NavLink>
+          <NavLink to="/feed" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Publicaciones</NavLink>
           <NavLink to="/articles" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : ''}`}>Artículos</NavLink>
           {user && (
             <>

@@ -44,6 +44,7 @@ export default function MobileTopbar({ onLogout }: Props) {
           <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
             <NavLink to="/" className="block px-4 py-3 hover:bg-gray-50">Inicio</NavLink>
             <NavLink to="/weather" className="block px-4 py-3 hover:bg-gray-50">Clima</NavLink>
+            <NavLink to="/feed" className="block px-4 py-3 hover:bg-gray-50">Publicaciones</NavLink>
             <NavLink to="/articles" className="block px-4 py-3 hover:bg-gray-50">Artículos</NavLink>
             {user ? (
               <>
